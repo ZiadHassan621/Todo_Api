@@ -40,4 +40,43 @@ class TodoController extends Controller
        ]);
         return response()->json($todos);
     }
+
+    public function update(Request $request, $id)
+    {
+       
+        $validator = Validator::make($request->all(), [
+            'title'=> 'required',
+            'content'=> 'required',
+            'is_completed'=> 'boolean',
+        ]);
+      
+        if($validator->fails()) 
+        {
+            return response()->json($validator->messages());
+    }
+    $todo = Todo::find( id: $id );
+    if(! $todo ||auth()->user()->id != $todo->user_id){
+        return response()->json(['message'=> 'Todo Not found'],200);
+    }
+   else{
+     $todo->update([
+            'title' => $request->title,
+            'content'=> $request->content,
+            'is_completed' => $request->is_completed
+        ]);
+        return response()->json('Todo Updated Successfully' ,200);
+    }
+}
+  public function delete(Request $request, $id){
+    $todo = Todo::find( $id );
+    if(! $todo || auth()->user()->id != $todo->user_id){
+        return response()->json(['message'=> 'Todo Not Found'],200);
+    } 
+    else{
+        $todo->delete();
+        return response()->json('Todo deleted successfully',200);
+  }
+
+
+}
 }
